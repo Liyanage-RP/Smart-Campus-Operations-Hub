@@ -5,6 +5,7 @@ import com.smartcampus.auth.security.JwtTokenProvider;
 import com.smartcampus.auth.security.OAuth2AuthenticationSuccessHandler;
 import com.smartcampus.auth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -28,6 +29,9 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2SuccessHandler;
+    
+    @Value("${app.cors.allowed-origins:http://localhost:5173,http://localhost:5174,http://localhost:3000}")
+    private String allowedOrigins;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -49,8 +53,9 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(request -> {
                 var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                corsConfig.addAllowedOrigin("http://localhost:5173");
-                corsConfig.addAllowedOrigin("http://localhost:3000");
+                for (String origin : allowedOrigins.split(",")) {
+                    corsConfig.addAllowedOrigin(origin.trim());
+                }
                 corsConfig.addAllowedMethod("*");
                 corsConfig.addAllowedHeader("*");
                 corsConfig.setAllowCredentials(true);
