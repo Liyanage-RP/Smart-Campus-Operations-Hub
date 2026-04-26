@@ -3,6 +3,9 @@ package com.smartcampus.config;
 import com.smartcampus.auth.model.Role;
 import com.smartcampus.auth.model.User;
 import com.smartcampus.auth.repository.UserRepository;
+import com.smartcampus.booking.model.Booking;
+import com.smartcampus.booking.model.BookingStatus;
+import com.smartcampus.booking.repository.BookingRepository;
 import com.smartcampus.facility.model.Facility;
 import com.smartcampus.facility.model.ResourceStatus;
 import com.smartcampus.facility.model.ResourceType;
@@ -13,6 +16,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -24,6 +28,7 @@ public class DataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final FacilityRepository facilityRepository;
+    private final BookingRepository bookingRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -35,7 +40,8 @@ public class DataSeeder implements CommandLineRunner {
 
         log.info("Seeding database with demo data...");
         seedUsers();
-        seedFacilities();
+        List<Facility> facilities = seedFacilities();
+        seedBookings(facilities);
         log.info("Database seeding complete!");
     }
 
@@ -79,15 +85,15 @@ public class DataSeeder implements CommandLineRunner {
         log.info("Seeded {} users", users.size());
     }
 
-    private void seedFacilities() {
+    private List<Facility> seedFacilities() {
         List<Facility> facilities = List.of(
             Facility.builder()
                 .name("Main Lecture Hall A")
                 .type(ResourceType.LECTURE_HALL)
                 .capacity(200)
                 .location("Building A, Ground Floor")
-                .description("Large lecture hall with tiered seating, projector, and surround sound system. Ideal for large lectures and presentations.")
-                .imageUrl("")
+                .description("Large lecture hall with tiered seating, projector, and surround sound system.")
+                .usageCount(45)
                 .status(ResourceStatus.ACTIVE)
                 .availabilityStartTime(LocalTime.of(8, 0))
                 .availabilityEndTime(LocalTime.of(20, 0))
@@ -99,8 +105,8 @@ public class DataSeeder implements CommandLineRunner {
                 .type(ResourceType.LECTURE_HALL)
                 .capacity(120)
                 .location("Building A, First Floor")
-                .description("Medium-sized lecture hall with modern AV equipment and whiteboard.")
-                .imageUrl("")
+                .description("Medium-sized lecture hall with modern AV equipment.")
+                .usageCount(28)
                 .status(ResourceStatus.ACTIVE)
                 .availabilityStartTime(LocalTime.of(8, 0))
                 .availabilityEndTime(LocalTime.of(18, 0))
@@ -112,8 +118,8 @@ public class DataSeeder implements CommandLineRunner {
                 .type(ResourceType.LAB)
                 .capacity(40)
                 .location("Building B, Second Floor")
-                .description("Fully equipped computer lab with 40 workstations, high-speed internet, and software development tools.")
-                .imageUrl("")
+                .description("Fully equipped computer lab with 40 workstations.")
+                .usageCount(62)
                 .status(ResourceStatus.ACTIVE)
                 .availabilityStartTime(LocalTime.of(8, 0))
                 .availabilityEndTime(LocalTime.of(22, 0))
@@ -125,8 +131,8 @@ public class DataSeeder implements CommandLineRunner {
                 .type(ResourceType.LAB)
                 .capacity(30)
                 .location("Building B, Third Floor")
-                .description("Electronics and IoT lab with oscilloscopes, Arduino kits, and soldering stations.")
-                .imageUrl("")
+                .description("Electronics and IoT lab with oscilloscopes and Arduino kits.")
+                .usageCount(15)
                 .status(ResourceStatus.ACTIVE)
                 .availabilityStartTime(LocalTime.of(9, 0))
                 .availabilityEndTime(LocalTime.of(17, 0))
@@ -138,8 +144,8 @@ public class DataSeeder implements CommandLineRunner {
                 .type(ResourceType.MEETING_ROOM)
                 .capacity(15)
                 .location("Admin Building, Fifth Floor")
-                .description("Executive board room with video conferencing, 65-inch display, and ergonomic seating.")
-                .imageUrl("")
+                .description("Executive board room with video conferencing.")
+                .usageCount(34)
                 .status(ResourceStatus.ACTIVE)
                 .availabilityStartTime(LocalTime.of(8, 0))
                 .availabilityEndTime(LocalTime.of(18, 0))
@@ -151,8 +157,8 @@ public class DataSeeder implements CommandLineRunner {
                 .type(ResourceType.MEETING_ROOM)
                 .capacity(8)
                 .location("Library, Second Floor")
-                .description("Small group study room with whiteboard and TV for screen sharing.")
-                .imageUrl("")
+                .description("Small group study room with whiteboard.")
+                .usageCount(51)
                 .status(ResourceStatus.ACTIVE)
                 .availabilityStartTime(LocalTime.of(7, 0))
                 .availabilityEndTime(LocalTime.of(23, 0))
@@ -164,37 +170,11 @@ public class DataSeeder implements CommandLineRunner {
                 .type(ResourceType.EQUIPMENT)
                 .capacity(1)
                 .location("IT Department, Room 101")
-                .description("Portable HD projector (1080p) with HDMI and wireless connectivity.")
-                .imageUrl("")
+                .description("Portable HD projector (1080p).")
+                .usageCount(12)
                 .status(ResourceStatus.ACTIVE)
                 .availabilityStartTime(LocalTime.of(8, 0))
                 .availabilityEndTime(LocalTime.of(20, 0))
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build(),
-            Facility.builder()
-                .name("Professional Camera Kit")
-                .type(ResourceType.EQUIPMENT)
-                .capacity(1)
-                .location("Media Center, Ground Floor")
-                .description("Sony A7III camera with lenses, tripod, and lighting kit for academic recording.")
-                .imageUrl("")
-                .status(ResourceStatus.ACTIVE)
-                .availabilityStartTime(LocalTime.of(9, 0))
-                .availabilityEndTime(LocalTime.of(17, 0))
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build(),
-            Facility.builder()
-                .name("Seminar Hall C")
-                .type(ResourceType.LECTURE_HALL)
-                .capacity(80)
-                .location("Building C, Ground Floor")
-                .description("Seminar hall with round-table layout capability and recording equipment.")
-                .imageUrl("")
-                .status(ResourceStatus.OUT_OF_SERVICE)
-                .availabilityStartTime(LocalTime.of(8, 0))
-                .availabilityEndTime(LocalTime.of(18, 0))
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build(),
@@ -203,8 +183,8 @@ public class DataSeeder implements CommandLineRunner {
                 .type(ResourceType.LAB)
                 .capacity(15)
                 .location("Engineering Building, First Floor")
-                .description("Lab equipped with multiple 3D printers (FDM & SLA), design workstations, and material storage.")
-                .imageUrl("")
+                .description("Lab equipped with multiple 3D printers.")
+                .usageCount(19)
                 .status(ResourceStatus.ACTIVE)
                 .availabilityStartTime(LocalTime.of(9, 0))
                 .availabilityEndTime(LocalTime.of(21, 0))
@@ -213,7 +193,67 @@ public class DataSeeder implements CommandLineRunner {
                 .build()
         );
 
-        facilityRepository.saveAll(facilities);
         log.info("Seeded {} facilities", facilities.size());
+        return facilityRepository.saveAll(facilities);
     }
+
+    private void seedBookings(List<Facility> facilities) {
+        if (facilities.isEmpty()) return;
+
+        LocalDate today = LocalDate.now();
+        Facility lab = facilities.get(2); // Computer Lab 1
+        Facility hall = facilities.get(0); // Main Hall A
+
+        List<Booking> bookings = List.of(
+            Booking.builder()
+                .facilityId(lab.getId())
+                .facilityName(lab.getName())
+                .userName("Jane Student")
+                .userEmail("student@smartcampus.edu")
+                .bookingDate(today)
+                .startTime(LocalTime.of(10, 0))
+                .endTime(LocalTime.of(12, 0))
+                .status(BookingStatus.APPROVED)
+                .purpose("Programming Workshop")
+                .build(),
+            Booking.builder()
+                .facilityId(hall.getId())
+                .facilityName(hall.getName())
+                .userName("Dr. Admin User")
+                .userEmail("admin@smartcampus.edu")
+                .bookingDate(today.plusDays(1))
+                .startTime(LocalTime.of(14, 0))
+                .endTime(LocalTime.of(16, 0))
+                .status(BookingStatus.APPROVED)
+                .purpose("Guest Lecture")
+                .build(),
+            Booking.builder()
+                .facilityId(lab.getId())
+                .facilityName(lab.getName())
+                .userName("Bob Researcher")
+                .userEmail("user2@smartcampus.edu")
+                .bookingDate(today.plusDays(1))
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(11, 0))
+                .status(BookingStatus.APPROVED)
+                .purpose("Simulation Run")
+                .build(),
+            Booking.builder()
+                .facilityId(facilities.get(4).getId())
+                .facilityName(facilities.get(4).getName())
+                .userName("Jane Student")
+                .userEmail("student@smartcampus.edu")
+                .bookingDate(today)
+                .startTime(LocalTime.of(13, 0))
+                .endTime(LocalTime.of(15, 0))
+                .status(BookingStatus.APPROVED)
+                .purpose("Board Meeting Sync")
+                .build()
+        );
+
+        bookingRepository.saveAll(bookings);
+        log.info("Seeded {} bookings for calendar availability", bookings.size());
+    }
+}
+
 }

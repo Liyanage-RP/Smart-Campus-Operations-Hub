@@ -198,10 +198,12 @@ export default function FacilitiesPage() {
             <div className="bar-chart">
               {sortedFacs.map((f, i) => (
                 <div key={i} className="bar-row">
-                  <span className="bar-label">{f.name}</span>
+                  <div className="bar-info">
+                    <span className="bar-label">{f.name}</span>
+                    <span className="bar-value">{f.usageCount || 0} Uses</span>
+                  </div>
                   <div className="bar-wrapper">
                     <div className="bar-fill" style={{ width: `${((f.usageCount || 0) / maxUsage) * 100}%` }}></div>
-                    <span className="bar-value">{f.usageCount || 0}</span>
                   </div>
                 </div>
               ))}

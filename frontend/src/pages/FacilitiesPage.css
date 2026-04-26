@@ -278,41 +278,50 @@
 .bar-chart {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .bar-row {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+}
+
+.bar-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .bar-label {
   font-size: 13px;
+  font-weight: 500;
   color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.bar-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-primary);
 }
 
 .bar-wrapper {
-  height: 10px;
+  height: 8px;
   background: var(--bg-tertiary);
-  border-radius: 5px;
-  position: relative;
-  flex: 1;
+  border-radius: 4px;
+  width: 100%;
 }
 
 .bar-fill {
   height: 100%;
-  border-radius: 5px;
+  border-radius: 4px;
   background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
 }
 
-.bar-value {
-  position: absolute;
-  right: -32px;
-  top: -4px;
-  font-size: 12px;
-  font-weight: 700;
-}
 
 .stat-summary-grid {
   display: grid;
