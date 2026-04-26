@@ -13,6 +13,8 @@ import TicketsPage from './pages/TicketsPage';
 import TicketDetailPage from './pages/TicketDetailPage';
 import AdminPage from './pages/AdminPage';
 import ProfilePage from './pages/ProfilePage';
+import AIChatbot from './components/chat/AIChatbot';
+import CalendarPage from './pages/CalendarPage';
 import './App.css';
 
 export default function App() {
@@ -30,6 +32,7 @@ export default function App() {
   return (
     <>
       {isAuthenticated && <Navbar />}
+      {isAuthenticated && <AIChatbot />}
       <main className="app-main">
         <Routes>
           <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />} />
@@ -38,6 +41,7 @@ export default function App() {
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/facilities" element={<ProtectedRoute><FacilitiesPage /></ProtectedRoute>} />
           <Route path="/facilities/:id" element={<ProtectedRoute><FacilityDetailPage /></ProtectedRoute>} />
+          <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
           <Route path="/bookings" element={<ProtectedRoute><BookingsPage /></ProtectedRoute>} />
           <Route path="/tickets" element={<ProtectedRoute><TicketsPage /></ProtectedRoute>} />
           <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetailPage /></ProtectedRoute>} />
