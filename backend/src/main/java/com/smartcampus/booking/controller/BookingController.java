@@ -63,4 +63,14 @@ public class BookingController {
     public ResponseEntity<Booking> cancelBooking(@PathVariable String id) {
         return ResponseEntity.ok(bookingService.cancelBooking(id));
     }
+    @GetMapping("/stats")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Long>> getBookingStats() {
+        return ResponseEntity.ok(bookingService.getBookingStats());
+    }
+
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<Booking>> getUpcomingBookings() {
+        return ResponseEntity.ok(bookingService.getUpcomingBookings());
+    }
 }
