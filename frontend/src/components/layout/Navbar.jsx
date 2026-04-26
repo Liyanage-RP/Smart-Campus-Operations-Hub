@@ -22,7 +22,6 @@ export default function Navbar() {
   const navLinks = [
     { path: '/dashboard', label: 'Dashboard' },
     { path: '/facilities', label: 'Facilities' },
-    { path: '/calendar', label: 'Calendar' },
     { path: '/bookings', label: 'Bookings' },
     { path: '/tickets', label: 'Tickets' },
   ];
