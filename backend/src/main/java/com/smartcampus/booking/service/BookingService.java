@@ -100,6 +100,9 @@ public class BookingService {
 
         Booking saved = bookingRepository.save(booking);
 
+        // Increment facility usage count
+        facilityService.incrementUsageCount(booking.getFacilityId());
+
         // Send notification
         notificationService.notifyBookingApproved(booking);
 

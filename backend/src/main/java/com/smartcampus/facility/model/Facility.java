@@ -46,6 +46,9 @@ public class Facility {
 
     private LocalTime availabilityEndTime;
 
+    @Builder.Default
+    private int usageCount = 0;
+
     @CreatedDate
     private LocalDateTime createdAt;
 

@@ -22,6 +22,7 @@ export default function DashboardPage() {
         ]);
         setStats({
           facilities: facRes.data.length,
+          facilitiesList: facRes.data,
           bookings: bookRes.data,
           tickets: tickRes.data,
         });
@@ -39,12 +40,14 @@ export default function DashboardPage() {
   const openTickets = stats.tickets.filter(t => t.status === 'OPEN').length;
   const inProgressTickets = stats.tickets.filter(t => t.status === 'IN_PROGRESS').length;
 
+  const totalUsage = stats.facilitiesList?.reduce((acc, f) => acc + (f.usageCount || 0), 0) || 0;
+
   const statCards = [
     { icon: <HiOutlineOfficeBuilding />, label: 'Facilities', value: stats.facilities, color: 'var(--accent-primary)', link: '/facilities' },
+    { icon: <span style={{ fontSize: '1.2em' }}>📊</span>, label: 'Total Usage', value: totalUsage, color: '#06b6d4', link: '/facilities' },
     { icon: <HiOutlineCalendar />, label: isAdmin ? 'Pending Bookings' : 'My Bookings', value: isAdmin ? pendingBookings : stats.bookings.length, color: 'var(--accent-warning)', link: '/bookings' },
     { icon: <HiOutlineCalendar />, label: 'Approved Bookings', value: approvedBookings, color: 'var(--accent-success)', link: '/bookings' },
     { icon: <HiOutlineTicket />, label: 'Open Tickets', value: openTickets, color: 'var(--accent-danger)', link: '/tickets' },
-    { icon: <HiOutlineTicket />, label: 'In Progress', value: inProgressTickets, color: '#a855f7', link: '/tickets' },
   ];
 
   const recentBookings = stats.bookings.slice(0, 5);

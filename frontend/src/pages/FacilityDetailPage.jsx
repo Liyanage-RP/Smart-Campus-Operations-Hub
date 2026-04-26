@@ -66,6 +66,7 @@ export default function FacilityDetailPage() {
           <div className="facility-detail-info">
             <div className="info-item"><HiOutlineLocationMarker /><span>{facility.location}</span></div>
             <div className="info-item"><HiOutlineUsers /><span>Capacity: {facility.capacity}</span></div>
+            <div className="info-item"><span style={{ fontSize: '1.2em' }}>📊</span><span>Total Usage: {facility.usageCount || 0} Bookings</span></div>
             {facility.availabilityStartTime && <div className="info-item"><HiOutlineClock /><span>{facility.availabilityStartTime} - {facility.availabilityEndTime}</span></div>}
           </div>
         </div>

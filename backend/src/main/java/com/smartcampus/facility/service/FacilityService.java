@@ -106,6 +106,12 @@ public class FacilityService {
         facilityRepository.delete(facility);
     }
 
+    public Facility incrementUsageCount(String id) {
+        Facility facility = getFacilityById(id);
+        facility.setUsageCount(facility.getUsageCount() + 1);
+        return facilityRepository.save(facility);
+    }
+
     public Facility updateFacilityStatus(String id, ResourceStatus status) {
         Facility facility = getFacilityById(id);
         facility.setStatus(status);

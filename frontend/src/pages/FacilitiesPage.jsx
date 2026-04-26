@@ -126,6 +126,7 @@ export default function FacilitiesPage() {
                 <div className="facility-meta">
                   <span><HiOutlineLocationMarker /> {f.location}</span>
                   <span><HiOutlineUsers /> {f.capacity}</span>
+                  <span title="Total Approved Bookings">📊 {f.usageCount || 0} Uses</span>
                   {f.availabilityStartTime && <span><HiOutlineClock /> {f.availabilityStartTime} - {f.availabilityEndTime}</span>}
                 </div>
                 {isAdmin && (

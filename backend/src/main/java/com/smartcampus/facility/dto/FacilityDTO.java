@@ -41,4 +41,6 @@ public class FacilityDTO {
     private LocalTime availabilityStartTime;
 
     private LocalTime availabilityEndTime;
+
+    private int usageCount;
 }
