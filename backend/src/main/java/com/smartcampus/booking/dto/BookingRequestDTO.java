@@ -13,7 +13,7 @@ public class BookingRequestDTO {
     private String facilityId;
 
     @NotNull(message = "Booking date is required")
-    @FutureOrPresent(message = "Booking date must be today or in the future")
+    @Future(message = "Booking date must be in the future")
     private LocalDate bookingDate;
 
     @NotNull(message = "Start time is required")
