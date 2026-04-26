@@ -1,15 +1,21 @@
 package com.smartcampus.facility.dto;
 
-import com.smartcampus.facility.model.FacilityStatus;
-import com.smartcampus.facility.model.FacilityType;
+import com.smartcampus.facility.model.ResourceStatus;
+import com.smartcampus.facility.model.ResourceType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class FacilityDTO {
 
     private String id;
@@ -18,7 +24,7 @@ public class FacilityDTO {
     private String name;
 
     @NotNull(message = "Facility type is required")
-    private FacilityType type;
+    private ResourceType type;
 
     @Min(value = 1, message = "Capacity must be at least 1")
     private int capacity;
@@ -30,9 +36,9 @@ public class FacilityDTO {
 
     private String imageUrl;
 
-    private FacilityStatus status;
+    private ResourceStatus status;
 
-    private LocalTime availableFrom;
+    private LocalTime availabilityStartTime;
 
-    private LocalTime availableTo;
+    private LocalTime availabilityEndTime;
 }

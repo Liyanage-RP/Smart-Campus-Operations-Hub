@@ -3,56 +3,63 @@ package com.smartcampus.facility.service;
 import com.smartcampus.exception.ResourceNotFoundException;
 import com.smartcampus.facility.dto.FacilityDTO;
 import com.smartcampus.facility.model.Facility;
-import com.smartcampus.facility.model.FacilityStatus;
-import com.smartcampus.facility.model.FacilityType;
+import com.smartcampus.facility.model.ResourceStatus;
+import com.smartcampus.facility.model.ResourceType;
 import com.smartcampus.facility.repository.FacilityRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class FacilityService {
 
     private final FacilityRepository facilityRepository;
+    private final MongoTemplate mongoTemplate;
 
-    public List<Facility> getAllFacilities(String search, FacilityType type, FacilityStatus status,
+    /**
+     * Get all facilities with dynamic filtering.
+     * Efficiently queries MongoDB using Criteria API.
+     */
+    public List<Facility> getAllFacilities(String search, ResourceType type, ResourceStatus status,
                                            Integer minCapacity, String location) {
-        List<Facility> facilities;
+        Query query = new Query();
 
+        // Keyword Search (Name, Location, or Description)
         if (search != null && !search.isBlank()) {
-            facilities = facilityRepository.searchByKeyword(search);
-        } else {
-            facilities = facilityRepository.findAll();
+            query.addCriteria(new Criteria().orOperator(
+                    Criteria.where("name").regex(search, "i"),
+                    Criteria.where("location").regex(search, "i"),
+                    Criteria.where("description").regex(search, "i")
+            ));
         }
 
-        // Apply filters
+        // Exact Type Filter
         if (type != null) {
-            facilities = facilities.stream()
-                    .filter(f -> f.getType() == type)
-                    .collect(Collectors.toList());
-        }
-        if (status != null) {
-            facilities = facilities.stream()
-                    .filter(f -> f.getStatus() == status)
-                    .collect(Collectors.toList());
-        }
-        if (minCapacity != null) {
-            facilities = facilities.stream()
-                    .filter(f -> f.getCapacity() >= minCapacity)
-                    .collect(Collectors.toList());
-        }
-        if (location != null && !location.isBlank()) {
-            String loc = location.toLowerCase();
-            facilities = facilities.stream()
-                    .filter(f -> f.getLocation().toLowerCase().contains(loc))
-                    .collect(Collectors.toList());
+            query.addCriteria(Criteria.where("type").is(type));
         }
 
-        return facilities;
+        // Status Filter
+        if (status != null) {
+            query.addCriteria(Criteria.where("status").is(status));
+        }
+
+        // Capacity Filter (Greater than or equal)
+        if (minCapacity != null) {
+            query.addCriteria(Criteria.where("capacity").gte(minCapacity));
+        }
+
+        // Location Partial Match
+        if (location != null && !location.isBlank()) {
+            query.addCriteria(Criteria.where("location").regex(location, "i"));
+        }
+
+        return mongoTemplate.find(query, Facility.class);
     }
 
     public Facility getFacilityById(String id) {
@@ -68,9 +75,9 @@ public class FacilityService {
                 .location(dto.getLocation())
                 .description(dto.getDescription())
                 .imageUrl(dto.getImageUrl())
-                .status(dto.getStatus() != null ? dto.getStatus() : FacilityStatus.ACTIVE)
-                .availableFrom(dto.getAvailableFrom())
-                .availableTo(dto.getAvailableTo())
+                .status(dto.getStatus() != null ? dto.getStatus() : ResourceStatus.ACTIVE)
+                .availabilityStartTime(dto.getAvailabilityStartTime())
+                .availabilityEndTime(dto.getAvailabilityEndTime())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -87,8 +94,8 @@ public class FacilityService {
         facility.setDescription(dto.getDescription());
         facility.setImageUrl(dto.getImageUrl());
         if (dto.getStatus() != null) facility.setStatus(dto.getStatus());
-        facility.setAvailableFrom(dto.getAvailableFrom());
-        facility.setAvailableTo(dto.getAvailableTo());
+        facility.setAvailabilityStartTime(dto.getAvailabilityStartTime());
+        facility.setAvailabilityEndTime(dto.getAvailabilityEndTime());
         facility.setUpdatedAt(LocalDateTime.now());
 
         return facilityRepository.save(facility);
@@ -99,7 +106,7 @@ public class FacilityService {
         facilityRepository.delete(facility);
     }
 
-    public Facility updateFacilityStatus(String id, FacilityStatus status) {
+    public Facility updateFacilityStatus(String id, ResourceStatus status) {
         Facility facility = getFacilityById(id);
         facility.setStatus(status);
         facility.setUpdatedAt(LocalDateTime.now());

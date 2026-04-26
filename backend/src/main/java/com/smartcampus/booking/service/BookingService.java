@@ -10,7 +10,7 @@ import com.smartcampus.exception.ConflictException;
 import com.smartcampus.exception.ResourceNotFoundException;
 import com.smartcampus.exception.UnauthorizedException;
 import com.smartcampus.facility.model.Facility;
-import com.smartcampus.facility.model.FacilityStatus;
+import com.smartcampus.facility.model.ResourceStatus;
 import com.smartcampus.facility.service.FacilityService;
 import com.smartcampus.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class BookingService {
         Facility facility = facilityService.getFacilityById(dto.getFacilityId());
 
         // Validate facility is active
-        if (facility.getStatus() == FacilityStatus.OUT_OF_SERVICE) {
+        if (facility.getStatus() == ResourceStatus.OUT_OF_SERVICE) {
             throw new IllegalArgumentException("Cannot book a facility that is out of service");
         }
 

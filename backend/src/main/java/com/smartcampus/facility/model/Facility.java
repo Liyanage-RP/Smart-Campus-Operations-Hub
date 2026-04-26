@@ -1,5 +1,7 @@
 package com.smartcampus.facility.model;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,12 +24,15 @@ public class Facility {
     @Id
     private String id;
 
+    @NotBlank(message = "Resource name is required")
     private String name;
 
-    private FacilityType type;
+    private ResourceType type;
 
+    @Min(value = 1, message = "Capacity must be at least 1")
     private int capacity;
 
+    @NotBlank(message = "Location is required")
     private String location;
 
     private String description;
@@ -35,11 +40,11 @@ public class Facility {
     private String imageUrl;
 
     @Builder.Default
-    private FacilityStatus status = FacilityStatus.ACTIVE;
+    private ResourceStatus status = ResourceStatus.ACTIVE;
 
-    private LocalTime availableFrom;
+    private LocalTime availabilityStartTime;
 
-    private LocalTime availableTo;
+    private LocalTime availabilityEndTime;
 
     @CreatedDate
     private LocalDateTime createdAt;

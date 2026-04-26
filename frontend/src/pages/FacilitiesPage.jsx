@@ -126,7 +126,7 @@ export default function FacilitiesPage() {
                 <div className="facility-meta">
                   <span><HiOutlineLocationMarker /> {f.location}</span>
                   <span><HiOutlineUsers /> {f.capacity}</span>
-                  {f.availableFrom && <span><HiOutlineClock /> {f.availableFrom} - {f.availableTo}</span>}
+                  {f.availabilityStartTime && <span><HiOutlineClock /> {f.availabilityStartTime} - {f.availabilityEndTime}</span>}
                 </div>
                 {isAdmin && (
                   <div className="facility-actions" onClick={(e) => e.preventDefault()}>
@@ -160,8 +160,8 @@ function FacilityFormModal({ facility, onSave, onClose }) {
     description: facility?.description || '',
     imageUrl: facility?.imageUrl || '',
     status: facility?.status || 'ACTIVE',
-    availableFrom: facility?.availableFrom || '08:00',
-    availableTo: facility?.availableTo || '18:00',
+    availabilityStartTime: facility?.availabilityStartTime || '08:00',
+    availabilityEndTime: facility?.availabilityEndTime || '18:00',
   });
 
   const handleChange = (e) => {
@@ -212,11 +212,11 @@ function FacilityFormModal({ facility, onSave, onClose }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div className="form-group">
               <label className="form-label">Available From</label>
-              <input className="form-input" type="time" name="availableFrom" value={form.availableFrom} onChange={handleChange} />
+              <input className="form-input" type="time" name="availabilityStartTime" value={form.availabilityStartTime} onChange={handleChange} />
             </div>
             <div className="form-group">
               <label className="form-label">Available To</label>
-              <input className="form-input" type="time" name="availableTo" value={form.availableTo} onChange={handleChange} />
+              <input className="form-input" type="time" name="availabilityEndTime" value={form.availabilityEndTime} onChange={handleChange} />
             </div>
           </div>
           <div className="form-group">

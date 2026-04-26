@@ -1,6 +1,6 @@
 package com.smartcampus.facility.model;
 
-public enum FacilityType {
+public enum ResourceType {
     LECTURE_HALL,
     LAB,
     MEETING_ROOM,

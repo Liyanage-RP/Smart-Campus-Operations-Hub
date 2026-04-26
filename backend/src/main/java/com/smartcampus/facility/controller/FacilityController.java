@@ -2,8 +2,8 @@ package com.smartcampus.facility.controller;
 
 import com.smartcampus.facility.dto.FacilityDTO;
 import com.smartcampus.facility.model.Facility;
-import com.smartcampus.facility.model.FacilityStatus;
-import com.smartcampus.facility.model.FacilityType;
+import com.smartcampus.facility.model.ResourceStatus;
+import com.smartcampus.facility.model.ResourceType;
 import com.smartcampus.facility.service.FacilityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/facilities")
+@RequestMapping({"/api/facilities", "/api/resources"})
 @RequiredArgsConstructor
 public class FacilityController {
 
@@ -25,11 +25,11 @@ public class FacilityController {
     @GetMapping
     public ResponseEntity<List<Facility>> getAllFacilities(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) FacilityType type,
-            @RequestParam(required = false) FacilityStatus status,
-            @RequestParam(required = false) Integer minCapacity,
+            @RequestParam(required = false) ResourceType type,
+            @RequestParam(required = false) ResourceStatus status,
+            @RequestParam(required = false) Integer capacity, // mapping 'capacity' to 'minCapacity'
             @RequestParam(required = false) String location) {
-        return ResponseEntity.ok(facilityService.getAllFacilities(search, type, status, minCapacity, location));
+        return ResponseEntity.ok(facilityService.getAllFacilities(search, type, status, capacity, location));
     }
 
     @GetMapping("/{id}")
@@ -61,7 +61,7 @@ public class FacilityController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Facility> updateStatus(@PathVariable String id,
                                                   @RequestBody Map<String, String> body) {
-        FacilityStatus status = FacilityStatus.valueOf(body.get("status"));
+        ResourceStatus status = ResourceStatus.valueOf(body.get("status"));
         return ResponseEntity.ok(facilityService.updateFacilityStatus(id, status));
     }
 }
