@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { facilityApi } from '../api/facilityApi';
 import { toast } from 'react-toastify';
 import { HiOutlineSearch, HiOutlinePlus, HiOutlineLocationMarker, HiOutlineUsers, HiOutlineClock } from 'react-icons/hi';
+import ConfirmDialog from '../components/common/ConfirmDialog';
 import './FacilitiesPage.css';
 
 const TYPES = ['', 'LECTURE_HALL', 'LAB', 'MEETING_ROOM', 'EQUIPMENT'];
@@ -18,6 +19,8 @@ export default function FacilitiesPage() {
   const [typeFilter, setTypeFilter] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingFacility, setEditingFacility] = useState(null);
+
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // stores ID of facility to delete
 
   const fetchFacilities = async () => {
     try {
@@ -36,7 +39,6 @@ export default function FacilitiesPage() {
   useEffect(() => { fetchFacilities(); }, [search, typeFilter]);
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this facility?')) return;
     try {
       await facilityApi.delete(id);
       toast.success('Facility deleted');
@@ -132,7 +134,7 @@ export default function FacilitiesPage() {
                 {isAdmin && (
                   <div className="facility-actions" onClick={(e) => e.preventDefault()}>
                     <button className="btn btn-sm btn-secondary" onClick={(e) => { e.preventDefault(); setEditingFacility(f); setShowForm(true); }}>Edit</button>
-                    <button className="btn btn-sm btn-danger" onClick={(e) => { e.preventDefault(); handleDelete(f.id); }}>Delete</button>
+                    <button className="btn btn-sm btn-danger" onClick={(e) => { e.preventDefault(); setDeleteConfirm(f.id); }}>Delete</button>
                   </div>
                 )}
               </Link>
@@ -145,6 +147,18 @@ export default function FacilitiesPage() {
             facility={editingFacility}
             onSave={handleSave}
             onClose={() => { setShowForm(false); setEditingFacility(null); }}
+          />
+        )}
+        
+        {deleteConfirm && (
+          <ConfirmDialog
+            isOpen={!!deleteConfirm}
+            title="Delete Facility"
+            message="Are you sure you want to delete this facility? This action cannot be undone."
+            confirmText="Delete"
+            type="danger"
+            onConfirm={() => handleDelete(deleteConfirm)}
+            onCancel={() => setDeleteConfirm(null)}
           />
         )}
       </div>

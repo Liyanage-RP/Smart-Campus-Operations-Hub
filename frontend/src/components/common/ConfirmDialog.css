@@ -1,0 +1,27 @@
+.confirm-dialog {
+  max-width: 400px !important;
+  padding: 24px !important;
+}
+
+.confirm-message {
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-success {
+  background: var(--accent-success);
+  color: white;
+}
+
+.btn-success:hover {
+  background: #15803d;
+  box-shadow: 0 0 15px rgba(22, 163, 74, 0.3);
+}

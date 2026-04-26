@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { bookingApi } from '../api/bookingApi';
 import { toast } from 'react-toastify';
 import { HiOutlineCalendar, HiOutlineCheck, HiOutlineX } from 'react-icons/hi';
+import ConfirmDialog from '../components/common/ConfirmDialog';
 import './BookingsPage.css';
 
 export default function BookingsPage() {
@@ -12,6 +13,7 @@ export default function BookingsPage() {
   const [filter, setFilter] = useState('');
   const [remarksModal, setRemarksModal] = useState(null); // { id, action }
   const [remarks, setRemarks] = useState('');
+  const [cancelConfirm, setCancelConfirm] = useState(null); // stores ID of booking to cancel
 
   const fetchBookings = async () => {
     try {
@@ -44,10 +46,10 @@ export default function BookingsPage() {
   };
 
   const handleCancel = async (id) => {
-    if (!confirm('Cancel this booking?')) return;
     try {
       await bookingApi.cancel(id);
       toast.success('Booking cancelled');
+      setCancelConfirm(null);
       fetchBookings();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Cancel failed');
@@ -112,7 +114,7 @@ export default function BookingsPage() {
                         </>
                       )}
                       {!isAdmin && (b.status === 'PENDING' || b.status === 'APPROVED') && (
-                        <button className="btn btn-sm btn-secondary" onClick={() => handleCancel(b.id)}>Cancel</button>
+                        <button className="btn btn-sm btn-secondary" onClick={() => setCancelConfirm(b.id)}>Cancel</button>
                       )}
                     </div>
                   </div>
@@ -141,6 +143,18 @@ export default function BookingsPage() {
               </div>
             </div>
           </div>
+        )}
+
+        {cancelConfirm && (
+          <ConfirmDialog
+            isOpen={!!cancelConfirm}
+            title="Cancel Booking"
+            message="Are you sure you want to cancel this booking? This action cannot be undone."
+            confirmText="Yes, Cancel"
+            type="warning"
+            onConfirm={() => handleCancel(cancelConfirm)}
+            onCancel={() => setCancelConfirm(null)}
+          />
         )}
       </div>
     </div>
