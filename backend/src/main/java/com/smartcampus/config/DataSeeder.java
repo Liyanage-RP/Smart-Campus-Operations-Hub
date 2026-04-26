@@ -33,16 +33,23 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepository.count() > 0) {
-            log.info("Database already seeded. Skipping...");
-            return;
+        log.info("Checking for demo data...");
+        if (userRepository.count() == 0) {
+            seedUsers();
+        }
+        
+        List<Facility> facilities;
+        if (facilityRepository.count() == 0) {
+            facilities = seedFacilities();
+        } else {
+            facilities = facilityRepository.findAll();
         }
 
-        log.info("Seeding database with demo data...");
-        seedUsers();
-        List<Facility> facilities = seedFacilities();
-        seedBookings(facilities);
-        log.info("Database seeding complete!");
+        if (bookingRepository.count() == 0) {
+            seedBookings(facilities);
+        }
+        
+        log.info("Data verification/seeding complete!");
     }
 
     private void seedUsers() {
@@ -248,12 +255,32 @@ public class DataSeeder implements CommandLineRunner {
                 .endTime(LocalTime.of(15, 0))
                 .status(BookingStatus.APPROVED)
                 .purpose("Board Meeting Sync")
+                .build(),
+            Booking.builder()
+                .facilityId(facilities.get(1).getId())
+                .facilityName(facilities.get(1).getName())
+                .userName("Mike Technician")
+                .userEmail("tech@smartcampus.edu")
+                .bookingDate(today)
+                .startTime(LocalTime.of(16, 0))
+                .endTime(LocalTime.of(18, 0))
+                .status(BookingStatus.APPROVED)
+                .purpose("Equipment Maintenance")
+                .build(),
+            Booking.builder()
+                .facilityId(facilities.get(5).getId())
+                .facilityName(facilities.get(5).getName())
+                .userName("Bob Researcher")
+                .userEmail("user2@smartcampus.edu")
+                .bookingDate(today.plusDays(2))
+                .startTime(LocalTime.of(10, 0))
+                .endTime(LocalTime.of(12, 0))
+                .status(BookingStatus.APPROVED)
+                .purpose("Study Group")
                 .build()
         );
 
         bookingRepository.saveAll(bookings);
         log.info("Seeded {} bookings for calendar availability", bookings.size());
     }
-}
-
 }

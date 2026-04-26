@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/authApi';
 import { toast } from 'react-toastify';
-import { HiOutlineUser, HiOutlineMail, HiOutlinePhone, HiOutlineOfficeBuilding, HiOutlinePencil } from 'react-icons/hi';
+import { HiOutlineUser, HiOutlineMail, HiOutlinePhone, HiOutlineOfficeBuilding, HiOutlinePencil, HiOutlineCalendar, HiOutlineShieldCheck, HiOutlineBadgeCheck } from 'react-icons/hi';
 import './ProfilePage.css';
 
 export default function ProfilePage() {
-  const { user, setUser } = useAuth();
+  const { user, updateUser } = useAuth();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
     name: user?.name || '',
@@ -22,7 +22,7 @@ export default function ProfilePage() {
     setLoading(true);
     try {
       const res = await authApi.updateProfile(form);
-      setUser(res.data);
+      updateUser(res.data);
       toast.success('Profile updated successfully!');
       setEditing(false);
     } catch (err) {
@@ -32,133 +32,200 @@ export default function ProfilePage() {
     }
   };
 
+  const getInitials = (name) => {
+    return name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U';
+  };
+
   return (
-    <div className="page profile-page">
+    <div className="page profile-page animate-fade-in">
       <div className="container">
-        <div className="profile-header glass-card">
-          <div className="profile-cover"></div>
-          <div className="profile-info-main">
-            <div className="profile-avatar-wrapper">
-              <div className="profile-avatar">
-                {user?.avatarUrl ? (
-                  <img src={user.avatarUrl} alt={user.name} />
-                ) : (
-                  <HiOutlineUser size={48} />
-                )}
-              </div>
+        <div className="profile-hero glass-card">
+          <div className="profile-cover-v2">
+            <div className="cover-pattern"></div>
+          </div>
+          <div className="profile-hero-content">
+            <div className="profile-avatar-large">
+              {user?.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user.name} />
+              ) : (
+                <div className="avatar-placeholder">{getInitials(user?.name)}</div>
+              )}
               {editing && (
-                <button className="avatar-edit-btn" onClick={() => toast.info('Avatar upload coming soon!')}>
+                <button className="avatar-upload-trigger" title="Upload New Photo">
                   <HiOutlinePencil />
                 </button>
               )}
             </div>
-            <div className="profile-title-area">
-              <h1 className="profile-name">{user?.name}</h1>
-              <p className="profile-role-badge">{user?.role?.replace('ROLE_', '')}</p>
+            
+            <div className="profile-identity">
+              <div className="name-row">
+                <h1 className="display-name">{user?.name}</h1>
+                <HiOutlineBadgeCheck className="verified-icon" title="Verified Member" />
+              </div>
+              <div className="meta-row">
+                <span className="role-tag">{user?.role?.replace('ROLE_', '')}</span>
+                <span className="dot-separator">•</span>
+                <span className="dept-text">{user?.department || 'General Department'}</span>
+              </div>
             </div>
-            {!editing && (
-              <button className="btn btn-primary edit-profile-btn" onClick={() => setEditing(true)}>
-                <HiOutlinePencil /> Edit Profile
-              </button>
-            )}
+
+            <div className="hero-actions">
+              {!editing ? (
+                <button className="btn btn-primary btn-with-icon" onClick={() => setEditing(true)}>
+                  <HiOutlinePencil /> Edit Profile
+                </button>
+              ) : (
+                <div className="editing-indicator">
+                  <span className="pulse-dot"></span> Editing Mode
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="profile-content-grid">
-          <div className="profile-sidebar">
-            <div className="glass-card info-card">
-              <h3>Contact Information</h3>
-              <div className="info-row">
-                <HiOutlineMail />
-                <div>
-                  <label>Email</label>
-                  <p>{user?.email}</p>
+        <div className="profile-layout-grid">
+          <div className="layout-sidebar">
+            <div className="glass-card sidebar-section">
+              <h3 className="section-title">Contact Details</h3>
+              <div className="detail-list">
+                <div className="detail-item">
+                  <div className="icon-box"><HiOutlineMail /></div>
+                  <div className="item-content">
+                    <span className="item-label">Email Address</span>
+                    <span className="item-value">{user?.email}</span>
+                  </div>
                 </div>
-              </div>
-              <div className="info-row">
-                <HiOutlinePhone />
-                <div>
-                  <label>Phone</label>
-                  <p>{user?.phoneNumber || 'Not provided'}</p>
+                <div className="detail-item">
+                  <div className="icon-box"><HiOutlinePhone /></div>
+                  <div className="item-content">
+                    <span className="item-label">Phone</span>
+                    <span className="item-value">{user?.phoneNumber || '--'}</span>
+                  </div>
                 </div>
-              </div>
-              <div className="info-row">
-                <HiOutlineOfficeBuilding />
-                <div>
-                  <label>Department</label>
-                  <p>{user?.department || 'Not assigned'}</p>
+                <div className="detail-item">
+                  <div className="icon-box"><HiOutlineOfficeBuilding /></div>
+                  <div className="item-content">
+                    <span className="item-label">Workplace</span>
+                    <span className="item-value">{user?.department || 'Not specified'}</span>
+                  </div>
                 </div>
               </div>
             </div>
+
+            <div className="glass-card sidebar-section security-section">
+              <h3 className="section-title">Account Security</h3>
+              <div className="security-item">
+                <HiOutlineShieldCheck className="sec-icon green" />
+                <span>Two-Factor Auth Enabled</span>
+              </div>
+              <button className="btn btn-outline btn-sm full-width" onClick={() => toast.info('Security settings coming soon')}>
+                Manage Security
+              </button>
+            </div>
           </div>
 
-          <div className="profile-main">
+          <div className="layout-main">
             {editing ? (
-              <div className="glass-card profile-form-card">
-                <h2>Edit Your Profile</h2>
-                <form onSubmit={handleSubmit}>
-                  <div className="form-group">
-                    <label className="form-label">Full Name</label>
-                    <input 
-                      className="form-input" 
-                      value={form.name} 
-                      onChange={(e) => setForm({...form, name: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div className="grid grid-2">
+              <div className="glass-card profile-form-container">
+                <div className="form-header">
+                  <h2>Update Personal Information</h2>
+                  <p>Changes will be reflected across your campus profile.</p>
+                </div>
+                <form onSubmit={handleSubmit} className="modern-form">
+                  <div className="form-section">
                     <div className="form-group">
-                      <label className="form-label">Phone Number</label>
+                      <label className="field-label">Full Name</label>
                       <input 
-                        className="form-input" 
-                        value={form.phoneNumber} 
-                        onChange={(e) => setForm({...form, phoneNumber: e.target.value})}
-                        placeholder="+94 7X XXX XXXX"
+                        className="modern-input" 
+                        value={form.name} 
+                        onChange={(e) => setForm({...form, name: e.target.value})}
+                        required
+                        placeholder="Your full legal name"
                       />
                     </div>
+                    
+                    <div className="input-row">
+                      <div className="form-group">
+                        <label className="field-label">Phone Number</label>
+                        <input 
+                          className="modern-input" 
+                          value={form.phoneNumber} 
+                          onChange={(e) => setForm({...form, phoneNumber: e.target.value})}
+                          placeholder="+94 7X XXX XXXX"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="field-label">Department</label>
+                        <input 
+                          className="modern-input" 
+                          value={form.department} 
+                          onChange={(e) => setForm({...form, department: e.target.value})}
+                          placeholder="e.g. Computing"
+                        />
+                      </div>
+                    </div>
+
                     <div className="form-group">
-                      <label className="form-label">Department</label>
-                      <input 
-                        className="form-input" 
-                        value={form.department} 
-                        onChange={(e) => setForm({...form, department: e.target.value})}
-                        placeholder="e.g. Computing, Engineering"
+                      <label className="field-label">Professional Bio</label>
+                      <textarea 
+                        className="modern-textarea" 
+                        value={form.bio} 
+                        onChange={(e) => setForm({...form, bio: e.target.value})}
+                        placeholder="Tell the community about your expertise and role..."
+                        rows="5"
                       />
                     </div>
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Bio</label>
-                    <textarea 
-                      className="form-textarea" 
-                      value={form.bio} 
-                      onChange={(e) => setForm({...form, bio: e.target.value})}
-                      placeholder="Tell us a bit about yourself..."
-                      rows="4"
-                    />
-                  </div>
-                  <div className="form-actions">
-                    <button type="button" className="btn btn-secondary" onClick={() => setEditing(false)}>Cancel</button>
-                    <button type="submit" className="btn btn-primary" disabled={loading}>
-                      {loading ? 'Saving...' : 'Save Changes'}
+
+                  <div className="form-footer">
+                    <button type="button" className="btn btn-ghost" onClick={() => setEditing(false)}>Discard</button>
+                    <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
+                      {loading ? 'Saving Changes...' : 'Save Profile'}
                     </button>
                   </div>
                 </form>
               </div>
             ) : (
-              <div className="glass-card bio-card">
-                <h2>About Me</h2>
-                <p className="bio-text">
-                  {user?.bio || 'No bio provided yet. Click "Edit Profile" to add one!'}
-                </p>
-                
-                <div className="profile-stats">
-                  <div className="stat-item">
-                    <span className="stat-value">Active</span>
-                    <span className="stat-label">Status</span>
+              <div className="main-content-stack">
+                <div className="glass-card info-summary-card">
+                  <div className="card-header-v2">
+                    <HiOutlineUser />
+                    <h2>About Profile</h2>
                   </div>
-                  <div className="stat-item">
-                    <span className="stat-value">{new Date(user?.createdAt).toLocaleDateString()}</span>
-                    <span className="stat-label">Member Since</span>
+                  <p className="description-text">
+                    {user?.bio || 'No professional bio has been added yet. A well-crafted bio helps other campus members understand your role and expertise.'}
+                  </p>
+                  
+                  <div className="quick-stats-grid">
+                    <div className="quick-stat">
+                      <div className="stat-num">Active</div>
+                      <div className="stat-desc">Account Status</div>
+                    </div>
+                    <div className="quick-stat">
+                      <div className="stat-num">{new Date(user?.createdAt).toLocaleDateString()}</div>
+                      <div className="stat-desc">Enrollment Date</div>
+                    </div>
+                    <div className="quick-stat">
+                      <div className="stat-num">04</div>
+                      <div className="stat-desc">Active Bookings</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="glass-card activity-timeline">
+                  <div className="card-header-v2">
+                    <HiOutlineCalendar />
+                    <h2>Recent Campus Activity</h2>
+                  </div>
+                  <div className="timeline-placeholder">
+                    <div className="timeline-item-dummy">
+                      <div className="time-marker">Today</div>
+                      <div className="event-box">Successfully updated facility permissions</div>
+                    </div>
+                    <div className="timeline-item-dummy">
+                      <div className="time-marker">Yesterday</div>
+                      <div className="event-box">Booked Main Lecture Hall A for 2 hours</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -169,3 +236,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+

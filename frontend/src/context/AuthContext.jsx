@@ -27,6 +27,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const res = await authApi.login({ email, password });
     localStorage.setItem('token', res.data.token);
+    localStorage.setItem('user', JSON.stringify(res.data.user));
     setUser(res.data.user);
     return res.data;
   };
@@ -34,12 +35,14 @@ export function AuthProvider({ children }) {
   const register = async (name, email, password) => {
     const res = await authApi.register({ name, email, password });
     localStorage.setItem('token', res.data.token);
+    localStorage.setItem('user', JSON.stringify(res.data.user));
     setUser(res.data.user);
     return res.data;
   };
 
   const loginWithToken = (token, userData) => {
     localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
   };
 
@@ -49,13 +52,18 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const updateUser = (userData) => {
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+  };
+
   const isAdmin = user?.role === 'ROLE_ADMIN';
   const isTechnician = user?.role === 'ROLE_TECHNICIAN';
   const isStaff = isAdmin || isTechnician;
 
   return (
     <AuthContext.Provider value={{
-      user, loading, login, register, logout, loginWithToken,
+      user, loading, login, register, logout, loginWithToken, updateUser,
       isAdmin, isTechnician, isStaff, isAuthenticated: !!user
     }}>
       {children}
