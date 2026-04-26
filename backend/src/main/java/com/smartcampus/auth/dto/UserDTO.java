@@ -16,6 +16,9 @@ public class UserDTO {
     private String email;
     private String name;
     private String avatarUrl;
+    private String phoneNumber;
+    private String department;
+    private String bio;
     private String provider;
     private Role role;
 
@@ -25,6 +28,9 @@ public class UserDTO {
                 .email(user.getEmail())
                 .name(user.getName())
                 .avatarUrl(user.getAvatarUrl())
+                .phoneNumber(user.getPhoneNumber())
+                .department(user.getDepartment())
+                .bio(user.getBio())
                 .provider(user.getProvider())
                 .role(user.getRole())
                 .build();

@@ -33,6 +33,31 @@ export default function AdminPage() {
     }
   };
 
+  const [editUser, setEditUser] = useState(null);
+  const [editForm, setEditForm] = useState({ name: '', phoneNumber: '', department: '', bio: '' });
+
+  const handleEditClick = (user) => {
+    setEditUser(user);
+    setEditForm({
+      name: user.name || '',
+      phoneNumber: user.phoneNumber || '',
+      department: user.department || '',
+      bio: user.bio || ''
+    });
+  };
+
+  const handleAdminUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      await authApi.adminUpdateProfile(editUser.id, editForm);
+      toast.success('User profile updated');
+      setEditUser(null);
+      fetchUsers();
+    } catch (err) {
+      toast.error('Failed to update user profile');
+    }
+  };
+
   const getRoleIcon = (role) => {
     switch (role) {
       case 'ROLE_ADMIN': return <HiOutlineShieldCheck style={{ color: 'var(--accent-danger)' }} />;
@@ -60,10 +85,10 @@ export default function AdminPage() {
                 <tr>
                   <th>User</th>
                   <th>Email</th>
-                  <th>Provider</th>
                   <th>Joined</th>
                   <th>Role</th>
-                  <th>Action</th>
+                  <th>Update Role</th>
+                  <th>Profile</th>
                 </tr>
               </thead>
               <tbody>
@@ -78,7 +103,6 @@ export default function AdminPage() {
                       </div>
                     </td>
                     <td><span className="user-email">{u.email}</span></td>
-                    <td><span className={`badge badge-${u.provider === 'google' ? 'info' : 'secondary'}`}>{u.provider}</span></td>
                     <td><span className="user-date">{new Date(u.createdAt).toLocaleDateString()}</span></td>
                     <td>
                       <div className="role-cell">
@@ -97,10 +121,46 @@ export default function AdminPage() {
                         <option value="ROLE_ADMIN">Admin</option>
                       </select>
                     </td>
+                    <td>
+                      <button className="btn btn-sm btn-secondary" onClick={() => handleEditClick(u)}>Edit Profile</button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {editUser && (
+          <div className="modal-overlay" onClick={() => setEditUser(null)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2 className="modal-title">Edit Profile: {editUser.name}</h2>
+                <button className="modal-close" onClick={() => setEditUser(null)}>✕</button>
+              </div>
+              <form onSubmit={handleAdminUpdate}>
+                <div className="form-group">
+                  <label className="form-label">Name</label>
+                  <input className="form-input" value={editForm.name} onChange={(e) => setEditForm({...editForm, name: e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Phone Number</label>
+                  <input className="form-input" value={editForm.phoneNumber} onChange={(e) => setEditForm({...editForm, phoneNumber: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Department</label>
+                  <input className="form-input" value={editForm.department} onChange={(e) => setEditForm({...editForm, department: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Bio</label>
+                  <textarea className="form-textarea" value={editForm.bio} onChange={(e) => setEditForm({...editForm, bio: e.target.value})} rows="3" />
+                </div>
+                <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 20 }}>
+                  <button type="button" className="btn btn-secondary" onClick={() => setEditUser(null)}>Cancel</button>
+                  <button type="submit" className="btn btn-primary">Save Changes</button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
       </div>

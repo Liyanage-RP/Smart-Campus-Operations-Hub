@@ -12,6 +12,7 @@ import BookingsPage from './pages/BookingsPage';
 import TicketsPage from './pages/TicketsPage';
 import TicketDetailPage from './pages/TicketDetailPage';
 import AdminPage from './pages/AdminPage';
+import ProfilePage from './pages/ProfilePage';
 import './App.css';
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/tickets" element={<ProtectedRoute><TicketsPage /></ProtectedRoute>} />
           <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetailPage /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute roles={['ROLE_ADMIN']}><AdminPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 
           <Route path="*" element={<Navigate to={isAuthenticated ? '/dashboard' : '/login'} />} />
         </Routes>

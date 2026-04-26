@@ -7,4 +7,6 @@ export const authApi = {
   getAllUsers: () => api.get('/auth/users'),
   updateRole: (id, role) => api.patch(`/auth/users/${id}/role`, { role }),
   getTechnicians: () => api.get('/auth/technicians'),
+  updateProfile: (data) => api.patch('/auth/profile', data),
+  adminUpdateProfile: (id, data) => api.patch(`/auth/users/${id}/profile`, data),
 };

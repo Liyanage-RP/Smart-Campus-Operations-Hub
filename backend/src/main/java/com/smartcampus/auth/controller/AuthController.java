@@ -49,6 +49,19 @@ public class AuthController {
         return ResponseEntity.ok(userService.updateUserRole(id, role));
     }
 
+    @PatchMapping("/profile")
+    public ResponseEntity<UserDTO> updateProfile(@RequestBody ProfileUpdateRequest request) {
+        String userId = userService.getCurrentUserId();
+        return ResponseEntity.ok(userService.updateUserProfile(userId, request));
+    }
+
+    @PatchMapping("/users/{id}/profile")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> adminUpdateProfile(@PathVariable String id,
+                                                      @RequestBody ProfileUpdateRequest request) {
+        return ResponseEntity.ok(userService.updateUserProfile(id, request));
+    }
+
     @GetMapping("/technicians")
     @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
     public ResponseEntity<List<UserDTO>> getTechnicians() {

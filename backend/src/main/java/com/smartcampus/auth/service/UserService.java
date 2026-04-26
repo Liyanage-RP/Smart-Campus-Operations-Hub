@@ -98,6 +98,20 @@ public class UserService {
         return UserDTO.fromUser(user);
     }
 
+    public UserDTO updateUserProfile(String userId, ProfileUpdateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        
+        if (request.getName() != null) user.setName(request.getName());
+        if (request.getAvatarUrl() != null) user.setAvatarUrl(request.getAvatarUrl());
+        if (request.getPhoneNumber() != null) user.setPhoneNumber(request.getPhoneNumber());
+        if (request.getDepartment() != null) user.setDepartment(request.getDepartment());
+        if (request.getBio() != null) user.setBio(request.getBio());
+        
+        user = userRepository.save(user);
+        return UserDTO.fromUser(user);
+    }
+
     public List<UserDTO> getTechnicians() {
         return userRepository.findByRole(Role.ROLE_TECHNICIAN).stream()
                 .map(UserDTO::fromUser)

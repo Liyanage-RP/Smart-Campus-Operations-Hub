@@ -68,7 +68,7 @@ export default function Navbar() {
             )}
           </div>
 
-          <div className="navbar-user">
+          <Link to="/profile" className="navbar-user">
             <div className="navbar-avatar">
               {user?.avatarUrl ? (
                 <img src={user.avatarUrl} alt={user.name} />
@@ -77,7 +77,7 @@ export default function Navbar() {
               )}
             </div>
             <span className="navbar-username">{user?.name?.split(' ')[0]}</span>
-          </div>
+          </Link>
 
           <button className="navbar-icon-btn logout-btn" onClick={handleLogout} title="Logout">
             <HiOutlineLogout size={20} />

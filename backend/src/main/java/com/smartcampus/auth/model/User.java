@@ -30,6 +30,12 @@ public class User {
 
     private String avatarUrl;
 
+    private String phoneNumber;
+
+    private String department;
+
+    private String bio;
+
     private String provider; // "local" or "google"
 
     private String providerId; // Google sub ID
