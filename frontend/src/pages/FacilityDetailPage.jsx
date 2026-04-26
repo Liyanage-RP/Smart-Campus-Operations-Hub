@@ -32,7 +32,12 @@ export default function FacilityDetailPage() {
       setShowBooking(false);
       setBookingForm({ bookingDate: '', startTime: '', endTime: '', purpose: '', expectedAttendees: 1 });
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Booking failed');
+      if (err.response?.data?.fieldErrors) {
+        const errors = Object.values(err.response.data.fieldErrors);
+        toast.error(`Validation Error: ${errors[0]}`);
+      } else {
+        toast.error(err.response?.data?.message || 'Booking failed');
+      }
     } finally {
       setSubmitting(false);
     }
