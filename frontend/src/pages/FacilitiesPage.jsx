@@ -164,14 +164,40 @@ function FacilityFormModal({ facility, onSave, onClose }) {
     availabilityEndTime: facility?.availabilityEndTime || '18:00',
   });
 
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const newErrors = {};
+    if (!form.name.trim()) newErrors.name = 'Facility name is required';
+    if (!form.location.trim()) newErrors.location = 'Location is required';
+    if (form.capacity < 1) newErrors.capacity = 'Capacity must be at least 1';
+    
+    if (form.availabilityStartTime && form.availabilityEndTime) {
+      if (form.availabilityEndTime <= form.availabilityStartTime) {
+        newErrors.time = 'End time must be after start time';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: name === 'capacity' ? parseInt(value) || 0 : value }));
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: null }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(form);
+    if (validate()) {
+      onSave(form);
+    } else {
+      toast.error('Please fix the errors before submitting');
+    }
   };
 
   return (
@@ -184,7 +210,14 @@ function FacilityFormModal({ facility, onSave, onClose }) {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">Name *</label>
-            <input className="form-input" name="name" value={form.name} onChange={handleChange} required id="facility-name" />
+            <input 
+              className={`form-input ${errors.name ? 'input-error' : ''}`} 
+              name="name" 
+              value={form.name} 
+              onChange={handleChange} 
+              id="facility-name" 
+            />
+            {errors.name && <p className="error-text">{errors.name}</p>}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div className="form-group">
@@ -198,12 +231,28 @@ function FacilityFormModal({ facility, onSave, onClose }) {
             </div>
             <div className="form-group">
               <label className="form-label">Capacity *</label>
-              <input className="form-input" type="number" name="capacity" min="1" value={form.capacity} onChange={handleChange} required id="facility-capacity" />
+              <input 
+                className={`form-input ${errors.capacity ? 'input-error' : ''}`} 
+                type="number" 
+                name="capacity" 
+                min="1" 
+                value={form.capacity} 
+                onChange={handleChange} 
+                id="facility-capacity" 
+              />
+              {errors.capacity && <p className="error-text">{errors.capacity}</p>}
             </div>
           </div>
           <div className="form-group">
             <label className="form-label">Location *</label>
-            <input className="form-input" name="location" value={form.location} onChange={handleChange} required id="facility-location" />
+            <input 
+              className={`form-input ${errors.location ? 'input-error' : ''}`} 
+              name="location" 
+              value={form.location} 
+              onChange={handleChange} 
+              id="facility-location" 
+            />
+            {errors.location && <p className="error-text">{errors.location}</p>}
           </div>
           <div className="form-group">
             <label className="form-label">Description</label>
@@ -212,13 +261,27 @@ function FacilityFormModal({ facility, onSave, onClose }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div className="form-group">
               <label className="form-label">Available From</label>
-              <input className="form-input" type="time" name="availabilityStartTime" value={form.availabilityStartTime} onChange={handleChange} />
+              <input 
+                className={`form-input ${errors.time ? 'input-error' : ''}`} 
+                type="time" 
+                name="availabilityStartTime" 
+                value={form.availabilityStartTime} 
+                onChange={handleChange} 
+              />
             </div>
             <div className="form-group">
               <label className="form-label">Available To</label>
-              <input className="form-input" type="time" name="availabilityEndTime" value={form.availabilityEndTime} onChange={handleChange} />
+              <input 
+                className={`form-input ${errors.time ? 'input-error' : ''}`} 
+                type="time" 
+                name="availabilityEndTime" 
+                value={form.availabilityEndTime} 
+                onChange={handleChange} 
+              />
             </div>
           </div>
+          {errors.time && <p className="error-text" style={{ marginTop: -8, marginBottom: 12 }}>{errors.time}</p>}
+          
           <div className="form-group">
             <label className="form-label">Status</label>
             <select className="form-select" name="status" value={form.status} onChange={handleChange}>
