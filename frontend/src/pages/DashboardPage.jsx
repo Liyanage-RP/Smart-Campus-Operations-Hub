@@ -82,53 +82,6 @@ export default function DashboardPage() {
             </div>
 
             <div className="dashboard-grid">
-              <div className="dashboard-section glass-card analytics-section">
-                <div className="section-header">
-                  <h2>Resource Usage Analytics</h2>
-                  <span className="badge badge-info">Live Insights</span>
-                </div>
-                <div className="analytics-container">
-                  <div className="chart-group">
-                    <h3 className="chart-title">Top Resources by Usage</h3>
-                    <div className="bar-chart">
-                      {stats.facilitiesList?.sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0)).slice(0, 5).map((f, i) => {
-                        const maxUsage = Math.max(...stats.facilitiesList.map(fac => fac.usageCount || 1));
-                        const width = ((f.usageCount || 0) / maxUsage) * 100;
-                        return (
-                          <div key={i} className="bar-row">
-                            <span className="bar-label">{f.name}</span>
-                            <div className="bar-wrapper">
-                              <div className="bar-fill" style={{ width: `${width}%`, background: `linear-gradient(90deg, var(--accent-primary), var(--accent-secondary))` }}></div>
-                              <span className="bar-value">{f.usageCount || 0}</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <div className="chart-group">
-                    <h3 className="chart-title">Peak Booking Hours</h3>
-                    <div className="line-chart-placeholder">
-                      <div className="hour-bars">
-                        {[8, 10, 12, 14, 16, 18, 20].map(h => {
-                          const bookingsAtHour = stats.bookings.filter(b => parseInt(b.startTime?.split(':')[0]) === h).length;
-                          const height = (bookingsAtHour / (stats.bookings.length || 1)) * 100 + 10;
-                          return (
-                            <div key={h} className="hour-bar-wrapper">
-                              <div className="hour-bar" style={{ height: `${height}%` }}>
-                                {bookingsAtHour > 0 && <span className="hour-val">{bookingsAtHour}</span>}
-                              </div>
-                              <span className="hour-label">{h}:00</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <div className="dashboard-section glass-card">
                 <div className="section-header">
                   <h2>Recent Bookings</h2>
@@ -146,6 +99,28 @@ export default function DashboardPage() {
                         </div>
                         <span className={`badge badge-${b.status.toLowerCase()}`}>{b.status}</span>
                       </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="dashboard-section glass-card">
+                <div className="section-header">
+                  <h2>Recent Tickets</h2>
+                  <Link to="/tickets" className="section-link">View all <HiOutlineArrowRight /></Link>
+                </div>
+                {recentTickets.length === 0 ? (
+                  <p className="section-empty">No tickets yet</p>
+                ) : (
+                  <div className="section-list">
+                    {recentTickets.map(t => (
+                      <Link key={t.id} to={`/tickets/${t.id}`} className="section-item">
+                        <div>
+                          <p className="item-title">{t.category}: {t.description?.substring(0, 50)}...</p>
+                          <p className="item-subtitle">{t.facilityName} · {t.priority}</p>
+                        </div>
+                        <span className={`badge badge-${t.status.toLowerCase()}`}>{t.status.replace('_', ' ')}</span>
+                      </Link>
                     ))}
                   </div>
                 )}
