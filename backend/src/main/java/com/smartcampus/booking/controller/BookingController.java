@@ -63,4 +63,32 @@ public class BookingController {
     public ResponseEntity<Booking> cancelBooking(@PathVariable String id) {
         return ResponseEntity.ok(bookingService.cancelBooking(id));
     }
+    @GetMapping("/stats")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Long>> getBookingStats() {
+        return ResponseEntity.ok(bookingService.getBookingStats());
+    }
+
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<Booking>> getUpcomingBookings() {
+        return ResponseEntity.ok(bookingService.getUpcomingBookings());
+    }
+
+    @GetMapping(value = "/{id}/qr", produces = org.springframework.http.MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getBookingQR(@PathVariable String id) {
+        Booking booking = bookingService.getBookingById(id);
+        if (booking.getStatus() != BookingStatus.APPROVED) {
+            throw new IllegalArgumentException("QR Code is only available for APPROVED bookings");
+        }
+        try {
+            String qrContent = "Booking Verification\nID: " + booking.getId() + "\nFacility: " + booking.getFacilityName() + "\nUser: " + booking.getUserEmail() + "\nDate: " + booking.getBookingDate() + "\nTime: " + booking.getStartTime() + " - " + booking.getEndTime();
+            com.google.zxing.qrcode.QRCodeWriter qrCodeWriter = new com.google.zxing.qrcode.QRCodeWriter();
+            com.google.zxing.common.BitMatrix bitMatrix = qrCodeWriter.encode(qrContent, com.google.zxing.BarcodeFormat.QR_CODE, 300, 300);
+            java.io.ByteArrayOutputStream pngOutputStream = new java.io.ByteArrayOutputStream();
+            com.google.zxing.client.j2se.MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
+            return ResponseEntity.ok().body(pngOutputStream.toByteArray());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate QR code", e);
+        }
+    }
 }

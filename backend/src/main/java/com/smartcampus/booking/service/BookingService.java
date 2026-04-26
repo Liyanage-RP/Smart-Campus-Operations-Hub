@@ -143,4 +143,17 @@ public class BookingService {
 
         return bookingRepository.save(booking);
     }
+
+    public java.util.Map<String, Long> getBookingStats() {
+        java.util.Map<String, Long> stats = new java.util.HashMap<>();
+        for (BookingStatus status : BookingStatus.values()) {
+            stats.put(status.name(), bookingRepository.countByStatus(status));
+        }
+        return stats;
+    }
+
+    public List<Booking> getUpcomingBookings() {
+        String userId = userService.getCurrentUserId();
+        return bookingRepository.findByUserIdAndBookingDateGreaterThanEqualOrderByBookingDateAsc(userId, java.time.LocalDate.now());
+    }
 }

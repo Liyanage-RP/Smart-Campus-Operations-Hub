@@ -100,6 +100,35 @@ export default function BookingsPage() {
                   </div>
                   <div className="booking-side">
                     <span className={`badge badge-${b.status.toLowerCase()}`}>{b.status}</span>
+                    {b.status === 'APPROVED' && (
+                      <div className="booking-qr" style={{ marginTop: 12, textAlign: 'center' }}>
+                        <div style={{ background: 'white', padding: '8px', borderRadius: '8px', display: 'inline-block' }}>
+                          <img 
+                            src={`http://localhost:8080/api/bookings/${b.id}/qr`} 
+                            alt="Booking QR" 
+                            style={{ width: 100, height: 100 }} 
+                          />
+                        </div>
+                        <br/>
+                        <button 
+                          className="btn btn-sm btn-secondary" 
+                          style={{ marginTop: 8 }}
+                          onClick={async () => {
+                            try {
+                              const res = await bookingApi.getQrCode(b.id);
+                              const url = window.URL.createObjectURL(new Blob([res.data]));
+                              const link = document.createElement('a');
+                              link.href = url;
+                              link.setAttribute('download', `booking-${b.id}-qr.png`);
+                              document.body.appendChild(link);
+                              link.click();
+                            } catch (e) { toast.error("Failed to download QR"); }
+                          }}
+                        >
+                          Download QR
+                        </button>
+                      </div>
+                    )}
                     <div className="booking-actions">
                       {isAdmin && b.status === 'PENDING' && (
                         <>

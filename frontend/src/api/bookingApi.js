@@ -8,4 +8,5 @@ export const bookingApi = {
   approve: (id, remarks) => api.patch(`/bookings/${id}/approve`, { remarks }),
   reject: (id, remarks) => api.patch(`/bookings/${id}/reject`, { remarks }),
   cancel: (id) => api.patch(`/bookings/${id}/cancel`),
+  getQrCode: (id) => api.get(`/bookings/${id}/qr`, { responseType: 'blob' }),
 };
