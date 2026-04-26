@@ -1,19 +1,31 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ticketApi } from '../api/ticketApi';
 import { facilityApi } from '../api/facilityApi';
 import { toast } from 'react-toastify';
-import { HiOutlineTicket, HiOutlinePlus, HiOutlineFilter } from 'react-icons/hi';
+import { HiOutlineTicket, HiOutlinePlus, HiOutlineFilter, HiOutlineCamera } from 'react-icons/hi';
 import './TicketsPage.css';
 
 export default function TicketsPage() {
   const { isAdmin, isTechnician } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL'); // ALL, OPEN, IN_PROGRESS, RESOLVED, CLOSED
   const [viewMode, setViewMode] = useState('ALL'); // ALL, MY_TICKETS, ASSIGNED_TO_ME (for tech)
   const [showForm, setShowForm] = useState(false);
+  const [initialFormState, setInitialFormState] = useState(null);
+
+  useEffect(() => {
+    if (location.state?.autoOpen) {
+      setInitialFormState({ facilityId: location.state.resourceId });
+      setShowForm(true);
+      // Clear state so it doesn't reopen on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const fetchTickets = async () => {
     setLoading(true);
@@ -48,6 +60,7 @@ export default function TicketsPage() {
       await ticketApi.create(formData);
       toast.success('Ticket submitted successfully');
       setShowForm(false);
+      setInitialFormState(null);
       fetchTickets();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to create ticket');
@@ -70,9 +83,14 @@ export default function TicketsPage() {
             <h1 className="page-title">Support Tickets</h1>
             <p className="page-subtitle">Report incidents and track maintenance requests</p>
           </div>
-          <button className="btn btn-primary" onClick={() => setShowForm(true)} id="create-ticket-btn">
-            <HiOutlinePlus /> New Ticket
-          </button>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button className="btn btn-secondary" onClick={() => navigate('/tickets/scan')}>
+              <HiOutlineCamera /> Scan QR
+            </button>
+            <button className="btn btn-primary" onClick={() => { setInitialFormState(null); setShowForm(true); }} id="create-ticket-btn">
+              <HiOutlinePlus /> New Ticket
+            </button>
+          </div>
         </div>
 
         <div className="tickets-toolbar">
@@ -129,19 +147,27 @@ export default function TicketsPage() {
         )}
 
         {showForm && (
-          <TicketFormModal onClose={() => setShowForm(false)} onSubmit={handleCreate} />
+          <TicketFormModal 
+            onClose={() => { setShowForm(false); setInitialFormState(null); }} 
+            onSubmit={handleCreate} 
+            initialData={initialFormState}
+          />
         )}
       </div>
     </div>
   );
 }
 
-function TicketFormModal({ onClose, onSubmit }) {
+function TicketFormModal({ onClose, onSubmit, initialData }) {
   const [facilities, setFacilities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    facilityId: '', category: 'MAINTENANCE', priority: 'LOW',
-    description: '', contactPhone: '', contactEmail: ''
+    facilityId: initialData?.facilityId || '', 
+    category: 'MAINTENANCE', 
+    priority: 'LOW',
+    description: '', 
+    contactPhone: '', 
+    contactEmail: ''
   });
   const [files, setFiles] = useState([]);
 

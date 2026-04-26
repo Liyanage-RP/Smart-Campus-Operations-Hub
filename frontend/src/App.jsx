@@ -11,6 +11,7 @@ import FacilityDetailPage from './pages/FacilityDetailPage';
 import BookingsPage from './pages/BookingsPage';
 import TicketsPage from './pages/TicketsPage';
 import TicketDetailPage from './pages/TicketDetailPage';
+import QRScannerPage from './pages/QRScannerPage';
 import AdminPage from './pages/AdminPage';
 import './App.css';
 
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/facilities/:id" element={<ProtectedRoute><FacilityDetailPage /></ProtectedRoute>} />
           <Route path="/bookings" element={<ProtectedRoute><BookingsPage /></ProtectedRoute>} />
           <Route path="/tickets" element={<ProtectedRoute><TicketsPage /></ProtectedRoute>} />
+          <Route path="/tickets/scan" element={<ProtectedRoute><QRScannerPage /></ProtectedRoute>} />
           <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetailPage /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute roles={['ROLE_ADMIN']}><AdminPage /></ProtectedRoute>} />
 

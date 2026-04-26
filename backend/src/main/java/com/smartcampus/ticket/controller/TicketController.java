@@ -49,4 +49,13 @@ public class TicketController {
     public void deleteTicket(@PathVariable String id) {
         ticketService.deleteTicket(id);
     }
+
+    @GetMapping("/scan/{resourceId}")
+    public Map<String, String> scanResource(@PathVariable String resourceId) {
+        // Return resource details to pre-fill the ticket form
+        return Map.of(
+            "resourceId", resourceId,
+            "facilityName", "Scanned Facility " + resourceId
+        );
+    }
 }
