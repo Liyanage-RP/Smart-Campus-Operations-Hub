@@ -23,6 +23,10 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
 
     List<Booking> findAllByOrderByCreatedAtDesc();
 
+    long countByStatus(BookingStatus status);
+
+    List<Booking> findByUserIdAndBookingDateGreaterThanEqualOrderByBookingDateAsc(String userId, LocalDate date);
+
     /**
      * Conflict detection: find bookings for the same facility on the same date
      * with overlapping time ranges that are PENDING or APPROVED.
