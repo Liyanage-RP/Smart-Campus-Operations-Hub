@@ -9,7 +9,9 @@ import ConfirmDialog from '../components/common/ConfirmDialog';
 import AIChatbot from '../components/chat/AIChatbot';
 import './FacilitiesPage.css';
 
-// ... (consts stay the same)
+const TYPES = ['', 'LECTURE_HALL', 'LAB', 'MEETING_ROOM', 'EQUIPMENT'];
+const TYPE_LABELS = { LECTURE_HALL: 'Lecture Hall', LAB: 'Lab', MEETING_ROOM: 'Meeting Room', EQUIPMENT: 'Equipment' };
+const TYPE_ICONS = { LECTURE_HALL: '🏫', LAB: '🔬', MEETING_ROOM: '🤝', EQUIPMENT: '📽️' };
 
 export default function FacilitiesPage() {
   const { isAdmin } = useAuth();
@@ -18,14 +20,9 @@ export default function FacilitiesPage() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // Search & Filter state
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
-  
-  // Calendar state
   const [calendarDate, setCalendarDate] = useState(new Date());
-
-  // Form & Confirm state
   const [showForm, setShowForm] = useState(false);
   const [editingFacility, setEditingFacility] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -37,15 +34,19 @@ export default function FacilitiesPage() {
       if (search) params.search = search;
       if (typeFilter) params.type = typeFilter;
       
-      const [facRes, bookRes] = await Promise.all([
-        facilityApi.getAll(params),
-        bookingApi.getAll()
-      ]);
+      const facRes = await facilityApi.getAll(params);
+      setFacilities(Array.isArray(facRes.data) ? facRes.data : []);
       
-      setFacilities(facRes.data);
-      setBookings(bookRes.data);
+      try {
+        const bookRes = await bookingApi.getAll();
+        setBookings(Array.isArray(bookRes.data) ? bookRes.data : []);
+      } catch (bookErr) {
+        console.error('Bookings failed to load', bookErr);
+        setBookings([]);
+      }
     } catch (err) {
-      toast.error('Failed to load data');
+      toast.error('Failed to load facilities');
+      setFacilities([]);
     } finally {
       setLoading(false);
     }
@@ -53,7 +54,33 @@ export default function FacilitiesPage() {
 
   useEffect(() => { fetchData(); }, [search, typeFilter]);
 
-  // ... (handlers stay similar)
+  const handleDelete = async (id) => {
+    try {
+      await facilityApi.delete(id);
+      toast.success('Facility deleted');
+      setDeleteConfirm(null);
+      fetchData();
+    } catch (err) {
+      toast.error('Failed to delete');
+    }
+  };
+
+  const handleSave = async (data) => {
+    try {
+      if (editingFacility) {
+        await facilityApi.update(editingFacility.id, data);
+        toast.success('Facility updated');
+      } else {
+        await facilityApi.create(data);
+        toast.success('Facility created');
+      }
+      setShowForm(false);
+      setEditingFacility(null);
+      fetchData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Save failed');
+    }
+  };
 
   const renderCatalogue = () => (
     <>
@@ -207,9 +234,6 @@ export default function FacilitiesPage() {
             <p className="page-subtitle">Unified resource management system</p>
           </div>
           <div className="header-actions">
-            <button className="btn btn-secondary chat-btn-inline" onClick={() => toast.info('Click the sparkle icon at the bottom right for AI help!')}>
-              <HiOutlineSparkles /> AI Assistant
-            </button>
             {isAdmin && (
               <button className="btn btn-primary" onClick={() => { setEditingFacility(null); setShowForm(true); }}>
                 <HiOutlinePlus /> Add Facility

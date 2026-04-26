@@ -31,7 +31,6 @@ export default function App() {
   return (
     <>
       {isAuthenticated && <Navbar />}
-      {isAuthenticated && <AIChatbot />}
       <main className="app-main">
         <Routes>
           <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />} />
